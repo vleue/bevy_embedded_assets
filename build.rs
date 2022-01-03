@@ -81,7 +81,7 @@ fn main() {
             });
 
         file.write_all("}".as_ref()).unwrap();
-    } else if let Ok(_) = std::env::var("DOCS_RS") {
+    } else if std::env::var("DOCS_RS").is_ok() {
         let out_dir = env::var_os("OUT_DIR").unwrap();
         let dest_path = Path::new(&out_dir).join("include_all_assets.rs");
 
