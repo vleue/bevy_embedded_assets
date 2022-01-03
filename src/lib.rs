@@ -23,7 +23,8 @@ pub use plugin::EmbeddedAssetPlugin;
 
 include!(concat!(env!("OUT_DIR"), "/include_all_assets.rs"));
 
-/// An [`HashMap`] associating file paths to their content, that can be used as an [`AssetIo`]
+/// An [`HashMap`](bevy::utils::HashMap) associating file paths to their content, that can be used
+/// as an [`AssetIo`](bevy::asset::AssetIo)
 pub struct EmbeddedAssetIo {
     loaded: HashMap<&'static Path, &'static [u8]>,
 }
@@ -64,7 +65,7 @@ impl EmbeddedAssetIo {
         self.loaded.insert(path, data);
     }
 
-    /// ZUT
+    /// Get the data from the asset matching the path provided.
     pub fn load_path_sync(&self, path: &Path) -> Result<Vec<u8>, AssetIoError> {
         self.loaded
             .get(path)
