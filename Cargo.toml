@@ -1,0 +1,20 @@
+[package]
+name = "bevy_embedded_assets"
+version = "0.1.0"
+authors = ["François Mockers <mockersf@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+keywords = ["bevy", "assets"]
+readme = "README.md"
+description = "A Bevy plugin to embed assets in your game"
+exclude = ["assets/**/*"]
+repository = "https://github.com/vleue/bevy_embedded_assets"
+categories = ["game-development"]
+
+
+[dependencies]
+# bevy = { git = "https://github.com/bevyengine/bevy", branch = "main", default-features = false }
+bevy = "0.5"
+
+[build-dependencies]
+cargo-emit = "0.2.1"
