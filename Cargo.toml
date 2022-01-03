@@ -7,7 +7,6 @@ license = "MIT OR Apache-2.0"
 keywords = ["bevy", "assets"]
 readme = "README.md"
 description = "A Bevy plugin to embed assets in your game"
-exclude = ["assets/**/*"]
 repository = "https://github.com/vleue/bevy_embedded_assets"
 categories = ["game-development"]
 
