@@ -82,11 +82,24 @@ fn main() {
 
         file.write_all("}".as_ref()).unwrap();
     } else {
-        cargo_emit::warning!(
-            "Could not find asset folder, please specify its path with ${}",
-            ASSET_PATH_VAR
-        );
-        panic!("No asset folder found");
+        if let Ok(_) = std::env::var("DOCS_RS") {
+            let out_dir = env::var_os("OUT_DIR").unwrap();
+            let dest_path = Path::new(&out_dir).join("include_all_assets.rs");
+
+            let mut file = File::create(&dest_path).unwrap();
+            file.write_all(
+                "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
+    #[allow(unused_variables)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){}"
+                    .as_ref(),
+            )
+            .unwrap();
+        } else {
+            cargo_emit::warning!(
+                "Could not find asset folder, please specify its path with ${}",
+                ASSET_PATH_VAR
+            );
+            panic!("No asset folder found");
+        }
     }
 }
 
