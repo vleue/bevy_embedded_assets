@@ -12,8 +12,7 @@ categories = ["game-development"]
 
 
 [dependencies]
-# bevy = { git = "https://github.com/bevyengine/bevy", branch = "main", default-features = false }
-bevy = { version = "0.5", default-features = false }
+bevy = { git = "https://github.com/bevyengine/bevy", branch = "main", default-features = false }
 
 [build-dependencies]
 cargo-emit = "0.2.1"

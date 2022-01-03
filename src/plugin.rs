@@ -9,7 +9,7 @@ use bevy::tasks::IoTaskPool;
 /// # use bevy::prelude::*;
 /// # use bevy_embedded_assets::EmbeddedAssetPlugin;
 /// # fn main() {
-///     App::build().add_plugins_with(DefaultPlugins, |group| {
+///     App::new().add_plugins_with(DefaultPlugins, |group| {
 ///         group.add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
 ///     });
 /// # }
@@ -19,9 +19,9 @@ use bevy::tasks::IoTaskPool;
 pub struct EmbeddedAssetPlugin;
 
 impl Plugin for EmbeddedAssetPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         let task_pool = app
-            .world()
+            .world
             .get_resource::<IoTaskPool>()
             .expect("`IoTaskPool` resource not found.")
             .0

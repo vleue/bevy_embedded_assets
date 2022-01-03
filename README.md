@@ -12,7 +12,7 @@ use bevy::prelude::*;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 
 fn main() {
-    App::build().add_plugins_with(DefaultPlugins, |group| {
+    App::new().add_plugins_with(DefaultPlugins, |group| {
         group.add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
     });
 }
@@ -22,4 +22,5 @@ fn main() {
 
 |Bevy|bevy_embedded_assets|
 |---|---|
+|main|main|
 |0.5|0.1|
