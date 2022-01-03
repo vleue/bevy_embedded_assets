@@ -115,3 +115,22 @@ jobs:
           command: deny
           args: check
 
+  format:
+    name: Doc
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
+          override: true
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
