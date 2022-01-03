@@ -1,0 +1,57 @@
+targets = [
+    # Common linux targets
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "aarch64-unknown-linux-gnu" },
+    { triple = "x86_64-unknown-linux-musl" },
+    # Apple targets
+    { triple = "aarch64-apple-darwin" },
+    { triple = "x86_64-apple-darwin" },
+    { triple = "aarch64-apple-ios" },
+    # Windows targets
+    { triple = "x86_64-pc-windows-msvc" },
+    # Wasm targets
+    { triple = "wasm32-unknown-unknown" },
+]
+
+[advisories]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+vulnerability = "deny"
+unmaintained = "deny"
+yanked = "deny"
+notice = "deny"
+ignore = []
+
+[licenses]
+unlicensed = "deny"
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "CC0-1.0",
+]
+copyleft = "deny"
+allow-osi-fsf-free = "neither"
+default = "deny"
+confidence-threshold = 0.8
+exceptions = [
+    { allow = ["BSD-3-Clause"], name = "instant", version = "*" },
+    { allow = ["BSD-3-Clause"], name = "pp-rs", version = "*" },
+    { allow = ["ISC"], name = "libloading", version = "*" },
+    { allow = ["Zlib"], name = "slotmap", version = "*" },
+]
+
+[bans]
+multiple-versions = "deny"
+# allowed while working with git deps
+# wildcards = "deny"
+# Certain crates/versions that will be skipped when doing duplicate detection.
+skip = [
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = [
+    "https://github.com/bevyengine/bevy",
+]

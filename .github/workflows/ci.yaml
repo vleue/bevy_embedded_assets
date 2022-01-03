@@ -86,3 +86,32 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
+
+  deny:
+    name: Deny
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            profile: minimal
+            override: true
+      - name: Install cargo quickinstall
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-quickinstall
+      - name: Install cargo deny
+        uses: actions-rs/cargo@v1
+        with:
+          command: quickinstall
+          args: cargo-deny
+      - name: Run cargo deny
+        uses: actions-rs/cargo@v1
+        with:
+          command: deny
+          args: check
+
