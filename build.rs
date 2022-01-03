@@ -31,10 +31,10 @@ fn main() {
                 .map(|v| Path::new(&v).to_path_buf())
                 .and_then(|path| {
                     path.parent()
-                        .and_then(|p| p.parent())
-                        .and_then(|p| p.parent())
-                        .and_then(|p| p.parent())
-                        .and_then(|p| p.parent())
+                        .and_then(Path::parent)
+                        .and_then(Path::parent)
+                        .and_then(Path::parent)
+                        .and_then(Path::parent)
                         .map(|p| p.join("assets"))
                 })
                 .and_then(|path| {

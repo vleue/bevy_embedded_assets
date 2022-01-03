@@ -8,7 +8,8 @@
     unstable_features,
     unused_import_braces,
     unused_qualifications,
-    missing_docs
+    missing_docs,
+    clippy::pedantic
 )]
 
 use std::path::{Path, PathBuf};
@@ -66,6 +67,10 @@ impl EmbeddedAssetIo {
     }
 
     /// Get the data from the asset matching the path provided.
+    ///
+    /// # Errors
+    ///
+    /// This will returns an error if the path is not known.
     pub fn load_path_sync(&self, path: &Path) -> Result<Vec<u8>, AssetIoError> {
         self.loaded
             .get(path)

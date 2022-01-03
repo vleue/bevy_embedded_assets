@@ -14,7 +14,11 @@ use bevy::tasks::IoTaskPool;
 ///     });
 /// # }
 /// ```
-#[allow(missing_debug_implementations, missing_copy_implementations)]
+#[allow(
+    missing_debug_implementations,
+    missing_copy_implementations,
+    clippy::module_name_repetitions
+)]
 #[derive(Default)]
 pub struct EmbeddedAssetPlugin;
 
