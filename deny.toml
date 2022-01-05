@@ -1,18 +1,3 @@
-targets = [
-    # Common linux targets
-    { triple = "x86_64-unknown-linux-gnu" },
-    { triple = "aarch64-unknown-linux-gnu" },
-    { triple = "x86_64-unknown-linux-musl" },
-    # Apple targets
-    { triple = "aarch64-apple-darwin" },
-    { triple = "x86_64-apple-darwin" },
-    { triple = "aarch64-apple-ios" },
-    # Windows targets
-    { triple = "x86_64-pc-windows-msvc" },
-    # Wasm targets
-    { triple = "wasm32-unknown-unknown" },
-]
-
 [advisories]
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
