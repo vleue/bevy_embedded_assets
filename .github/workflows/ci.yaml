@@ -9,8 +9,17 @@ env:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        exclude:
+          - os: macos-latest
+            toolchain: nightly
+          - os: windows-latest
+            toolchain: nightly
+    runs-on: ${{ matrix.os }}
     name: Test Suite
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -31,6 +40,7 @@ jobs:
           toolchain: stable
           override: true
       - name: Install Dependencies
+        if: runner.os == 'linux'
         run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Run cargo test
         uses: actions-rs/cargo@v1
