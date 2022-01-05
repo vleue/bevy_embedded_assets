@@ -70,7 +70,7 @@ fn main() {
                 cargo_emit::rerun_if_changed!(fullpath.to_string_lossy());
                 file.write_all(
                     format!(
-                        r#"embedded.add_asset(std::path::Path::new("{}"), include_bytes!("{}"));
+                        r#"embedded.add_asset(std::path::Path::new({:?}), include_bytes!({:?}));
 "#,
                         path.to_string_lossy(),
                         fullpath.to_string_lossy()
