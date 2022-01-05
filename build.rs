@@ -57,8 +57,8 @@ fn main() {
 
         let mut file = File::create(&dest_path).unwrap();
         file.write_all(
-            "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
-#[allow(unused_variables)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){\n"
+        "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
+#[allow(unused_variables, clippy::non_ascii_literal)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){\n"
                 .as_ref(),
         )
         .unwrap();
