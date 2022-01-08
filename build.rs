@@ -10,6 +10,7 @@ const ASSET_PATH_VAR: &str = "BEVY_ASSET_PATH";
 fn main() {
     cargo_emit::rerun_if_env_changed!(ASSET_PATH_VAR);
 
+    // Check if env variable is set for the assets folder
     if let Some(dir) = env::var(ASSET_PATH_VAR)
         .ok()
         .map(|v| Path::new(&v).to_path_buf())
@@ -25,17 +26,20 @@ fn main() {
                 None
             }
         })
+        // Otherwise, search for the target folder and look for an assets folder next to it
         .or_else(|| {
             env::var("OUT_DIR")
                 .ok()
                 .map(|v| Path::new(&v).to_path_buf())
                 .and_then(|path| {
-                    path.parent()
-                        .and_then(|p| p.parent())
-                        .and_then(|p| p.parent())
-                        .and_then(|p| p.parent())
-                        .and_then(|p| p.parent())
-                        .map(|p| p.join("assets"))
+                    for ancestor in path.ancestors() {
+                        if let Some(last) = ancestor.file_name() {
+                            if last == "target" {
+                                return ancestor.parent().map(|p| p.join("assets"));
+                            }
+                        }
+                    }
+                    None
                 })
                 .and_then(|path| {
                     if path.exists() {
