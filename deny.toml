@@ -31,6 +31,7 @@ multiple-versions = "deny"
 # wildcards = "deny"
 # Certain crates/versions that will be skipped when doing duplicate detection.
 skip = [
+    { name = "hashbrown", version = "0.9" },
 ]
 
 [sources]
@@ -38,5 +39,4 @@ unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 allow-git = [
-    "https://github.com/bevyengine/bevy",
 ]
