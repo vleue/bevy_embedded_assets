@@ -13,16 +13,20 @@ allow = [
     "MIT",
     "Apache-2.0",
     "CC0-1.0",
+    "MIT-0",
 ]
 copyleft = "deny"
 allow-osi-fsf-free = "neither"
 default = "deny"
 confidence-threshold = 0.8
 exceptions = [
-    { allow = ["BSD-3-Clause"], name = "instant", version = "*" },
-    { allow = ["BSD-3-Clause"], name = "pp-rs", version = "*" },
-    { allow = ["ISC"], name = "libloading", version = "*" },
-    { allow = ["Zlib"], name = "slotmap", version = "*" },
+    { allow = ["BSD-3-Clause"], name = "instant" },
+    { allow = ["BSD-3-Clause"], name = "pp-rs" },
+    { allow = ["ISC"], name = "libloading" },
+    { allow = ["Zlib"], name = "slotmap" },
+    { allow = ["Zlib"], name = "const_panic" },
+    { allow = ["Zlib"], name = "bevy_mikktspace" },
+    { allow = ["Unicode-DFS-2016"], name = "unicode-ident" },
 ]
 
 [bans]
@@ -31,7 +35,7 @@ multiple-versions = "deny"
 # wildcards = "deny"
 # Certain crates/versions that will be skipped when doing duplicate detection.
 skip = [
-    { name = "hashbrown", version = "0.9" },
+    { name = "hashbrown", version = "0.11" },
 ]
 
 [sources]
