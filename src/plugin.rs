@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::tasks::IoTaskPool;
 
 /// Bevy plugin to add to your application that will insert a custom [`AssetServer`] embedding
 /// your assets instead of the default added by the [`AssetPlugin`](bevy::asset::AssetPlugin).
@@ -24,16 +23,6 @@ pub struct EmbeddedAssetPlugin;
 
 impl Plugin for EmbeddedAssetPlugin {
     fn build(&self, app: &mut App) {
-        let task_pool = app
-            .world
-            .get_resource::<IoTaskPool>()
-            .expect("`IoTaskPool` resource not found.")
-            .0
-            .clone();
-
-        app.insert_resource(AssetServer::new(
-            crate::EmbeddedAssetIo::preloaded(),
-            task_pool,
-        ));
+        app.insert_resource(AssetServer::new(crate::EmbeddedAssetIo::preloaded()));
     }
 }

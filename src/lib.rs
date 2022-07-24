@@ -15,7 +15,7 @@
 use std::path::{Path, PathBuf};
 
 use bevy::{
-    asset::{AssetIo, AssetIoError},
+    asset::{AssetIo, AssetIoError, FileType, Metadata},
     utils::HashMap,
 };
 
@@ -92,7 +92,7 @@ impl AssetIo for EmbeddedAssetIo {
         &self,
         path: &Path,
     ) -> Result<Box<dyn Iterator<Item = PathBuf>>, AssetIoError> {
-        if self.is_directory(path) {
+        if self.get_metadata(path).unwrap().is_dir() {
             let paths: Vec<_> = self
                 .loaded
                 .keys()
@@ -105,19 +105,25 @@ impl AssetIo for EmbeddedAssetIo {
         }
     }
 
-    fn is_directory(&self, path: &Path) -> bool {
-        let as_folder = path.join("");
-        self.loaded
-            .keys()
-            .any(|loaded_path| loaded_path.starts_with(&as_folder) && loaded_path != &path)
-    }
-
     fn watch_path_for_changes(&self, _path: &Path) -> Result<(), AssetIoError> {
         Ok(())
     }
 
     fn watch_for_changes(&self) -> Result<(), AssetIoError> {
         Ok(())
+    }
+
+    fn get_metadata(&self, path: &Path) -> Result<Metadata, AssetIoError> {
+        let as_folder = path.join("");
+        let is_folder = self
+            .loaded
+            .keys()
+            .any(|loaded_path| loaded_path.starts_with(&as_folder) && loaded_path != &path);
+        if is_folder {
+            Ok(Metadata::new(FileType::Directory))
+        } else {
+            Ok(Metadata::new(FileType::File))
+        }
     }
 }
 
@@ -156,11 +162,23 @@ mod tests {
         embedded.add_asset(&Path::new("asset.png"), &[]);
         embedded.add_asset(&Path::new("directory/asset.png"), &[]);
 
-        assert!(!embedded.is_directory(&Path::new("asset.png")));
-        assert!(!embedded.is_directory(&Path::new("asset")));
-        assert!(embedded.is_directory(&Path::new("directory")));
-        assert!(embedded.is_directory(&Path::new("directory/")));
-        assert!(!embedded.is_directory(&Path::new("directory/asset")));
+        assert!(!embedded
+            .get_metadata(&Path::new("asset.png"))
+            .unwrap()
+            .is_dir());
+        assert!(!embedded.get_metadata(&Path::new("asset")).unwrap().is_dir());
+        assert!(embedded
+            .get_metadata(&Path::new("directory"))
+            .unwrap()
+            .is_dir());
+        assert!(embedded
+            .get_metadata(&Path::new("directory/"))
+            .unwrap()
+            .is_dir());
+        assert!(!embedded
+            .get_metadata(&Path::new("directory/asset"))
+            .unwrap()
+            .is_dir());
     }
 
     #[test]
