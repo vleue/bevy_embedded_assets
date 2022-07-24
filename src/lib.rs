@@ -115,11 +115,11 @@ impl AssetIo for EmbeddedAssetIo {
 
     fn get_metadata(&self, path: &Path) -> Result<Metadata, AssetIoError> {
         let as_folder = path.join("");
-        let is_folder = self
+        if self
             .loaded
             .keys()
-            .any(|loaded_path| loaded_path.starts_with(&as_folder) && loaded_path != &path);
-        if is_folder {
+            .any(|loaded_path| loaded_path.starts_with(&as_folder) && loaded_path != &path)
+        {
             Ok(Metadata::new(FileType::Directory))
         } else {
             Ok(Metadata::new(FileType::File))
