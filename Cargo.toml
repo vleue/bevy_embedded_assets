@@ -8,6 +8,8 @@ keywords = ["bevy", "assets"]
 readme = "README.md"
 description = "A Bevy plugin to embed assets in your game"
 repository = "https://github.com/vleue/bevy_embedded_assets"
+homepage = "https://github.com/vleue/bevy_embedded_assets"
+documentation = "https://docs.rs/bevy_embedded_assets"
 categories = ["game-development"]
 
 
