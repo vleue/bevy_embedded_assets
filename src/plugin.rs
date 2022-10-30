@@ -8,9 +8,11 @@ use bevy::prelude::*;
 /// # use bevy::prelude::*;
 /// # use bevy_embedded_assets::EmbeddedAssetPlugin;
 /// # fn main() {
-///     App::new().add_plugins_with(DefaultPlugins, |group| {
-///         group.add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
-///     });
+/// App::new().add_plugins(
+///     DefaultPlugins
+///         .build()
+///         .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
+/// );
 /// # }
 /// ```
 #[allow(
