@@ -25,6 +25,9 @@ pub struct EmbeddedAssetPlugin;
 
 impl Plugin for EmbeddedAssetPlugin {
     fn build(&self, app: &mut App) {
+        if app.is_plugin_added::<AssetPlugin>() {
+            error!("plugin EmbeddedAssetPlugin must be added before plugin AssetPlugin")
+        }
         app.insert_resource(AssetServer::new(crate::EmbeddedAssetIo::preloaded()));
     }
 }
