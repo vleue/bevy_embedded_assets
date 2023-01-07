@@ -59,7 +59,7 @@ fn main() {
         let out_dir = env::var_os("OUT_DIR").unwrap();
         let dest_path = Path::new(&out_dir).join("include_all_assets.rs");
 
-        let mut file = File::create(&dest_path).unwrap();
+        let mut file = File::create(dest_path).unwrap();
         file.write_all(
         "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
 #[allow(unused_variables, clippy::non_ascii_literal)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){\n"
@@ -67,16 +67,23 @@ fn main() {
         )
         .unwrap();
 
+        let building_for_wasm = std::env::var("CARGO_CFG_TARGET_ARCH") == Ok("wasm32".to_string());
+
         visit_dirs(&dir)
             .iter()
             .map(|path| (path, path.strip_prefix(&dir).unwrap()))
             .for_each(|(fullpath, path)| {
+                let mut path = path.to_string_lossy().to_string();
+                if building_for_wasm {
+                    // building for wasm. replace paths with forward slash in case we're building from windows
+                    path = path.replace('\\', "/");
+                }
                 cargo_emit::rerun_if_changed!(fullpath.to_string_lossy());
                 file.write_all(
                     format!(
                         r#"embedded.add_asset(std::path::Path::new({:?}), include_bytes!({:?}));
 "#,
-                        path.to_string_lossy(),
+                        path,
                         fullpath.to_string_lossy()
                     )
                     .as_ref(),
@@ -89,7 +96,7 @@ fn main() {
         let out_dir = env::var_os("OUT_DIR").unwrap();
         let dest_path = Path::new(&out_dir).join("include_all_assets.rs");
 
-        let mut file = File::create(&dest_path).unwrap();
+        let mut file = File::create(dest_path).unwrap();
         file.write_all(
             "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
     #[allow(unused_variables)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){}"

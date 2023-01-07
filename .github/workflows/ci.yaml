@@ -11,20 +11,14 @@ jobs:
   test:
     strategy:
       matrix:
-        toolchain: [stable, nightly]
         os: [windows-latest, ubuntu-latest, macos-latest]
-        exclude:
-          - os: macos-latest
-            toolchain: nightly
-          - os: windows-latest
-            toolchain: nightly
     runs-on: ${{ matrix.os }}
     name: Test Suite
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -33,28 +27,50 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+      - uses: dtolnay/rust-toolchain@stable
       - name: Install Dependencies
         if: runner.os == 'linux'
         run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Run cargo test
-        uses: actions-rs/cargo@v1
+        run: cargo test
+
+  wasm-test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    name: WASM Test Suite
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Cache
+        uses: actions/cache@v3
         with:
-          command: test
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-wasm-test-${{ hashFiles('**/Cargo.toml') }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          target: wasm32-unknown-unknown
+      - name: Install wasm-bindgen
+        run: |
+          cargo install cargo-quickinstall
+          cargo quickinstall wasm-bindgen-cli
+      - name: Run cargo test
+        run: cargo test --target wasm32-unknown-unknown
 
   clippy_check:
     name: Clippy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -63,84 +79,44 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-clippy-${{ hashFiles('**/Cargo.toml') }}
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: clippy
-          override: true
+      - uses: dtolnay/rust-toolchain@stable
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
       - name: Run clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: -- -D warnings
+        run: cargo clippy -- -D warnings
 
   format:
     name: Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: rustfmt
-          override: true
+        uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
       - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
 
   deny:
     name: Deny
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            profile: minimal
-            override: true
-      - name: Install cargo quickinstall
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-quickinstall
-      - name: Install cargo deny
-        uses: actions-rs/cargo@v1
-        with:
-          command: quickinstall
-          args: cargo-deny
+        uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install tooling
+        run: |
+          cargo install cargo-quickinstall
+          cargo quickinstall cargo-deny
       - name: Run cargo deny
-        uses: actions-rs/cargo@v1
-        with:
-          command: deny
-          args: check
+        run: cargo deny check
 
   doc:
     name: Doc
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          profile: minimal
-          override: true
-      - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --no-deps
+        uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run cargo doc
+        run: cargo doc --no-deps
         env:
           RUSTDOCFLAGS: -D warnings
