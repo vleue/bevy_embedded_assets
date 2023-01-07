@@ -76,7 +76,7 @@ fn main() {
                 let mut path = path.to_string_lossy().to_string();
                 if building_for_wasm {
                     // building for wasm. replace paths with forward slash in case we're building from windows
-                    path = path.replace("\\", "/");
+                    path = path.replace('\\', "/");
                 }
                 cargo_emit::rerun_if_changed!(fullpath.to_string_lossy());
                 file.write_all(
