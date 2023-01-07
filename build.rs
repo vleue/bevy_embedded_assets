@@ -59,7 +59,7 @@ fn main() {
         let out_dir = env::var_os("OUT_DIR").unwrap();
         let dest_path = Path::new(&out_dir).join("include_all_assets.rs");
 
-        let mut file = File::create(&dest_path).unwrap();
+        let mut file = File::create(dest_path).unwrap();
         file.write_all(
         "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
 #[allow(unused_variables, clippy::non_ascii_literal)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){\n"
@@ -89,7 +89,7 @@ fn main() {
         let out_dir = env::var_os("OUT_DIR").unwrap();
         let dest_path = Path::new(&out_dir).join("include_all_assets.rs");
 
-        let mut file = File::create(&dest_path).unwrap();
+        let mut file = File::create(dest_path).unwrap();
         file.write_all(
             "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
     #[allow(unused_variables)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){}"
