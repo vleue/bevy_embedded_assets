@@ -116,10 +116,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --no-deps
+      - name: Run cargo doc
+        run: cargo doc --no-deps
         env:
           RUSTDOCFLAGS: -D warnings
