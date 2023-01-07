@@ -1,8 +1,11 @@
 use std::path::Path;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_test::wasm_bindgen_test;
 
 use bevy_embedded_assets::EmbeddedAssetIo;
 
-#[test]
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
 fn check_preloaded_simple() {
     let embedded = EmbeddedAssetIo::preloaded();
 
@@ -15,7 +18,8 @@ fn check_preloaded_simple() {
     assert_eq!(String::from_utf8(raw_asset).unwrap(), "hello");
 }
 
-#[test]
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
 fn check_preloaded_special_chars() {
     let embedded = EmbeddedAssetIo::preloaded();
 
@@ -28,7 +32,8 @@ fn check_preloaded_special_chars() {
     assert_eq!(String::from_utf8(raw_asset).unwrap(), "with special chars");
 }
 
-#[test]
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
 fn check_preloaded_subdir() {
     let embedded = EmbeddedAssetIo::preloaded();
 

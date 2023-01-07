@@ -138,8 +138,8 @@ mod tests {
     #[test]
     fn load_path() {
         let mut embedded = EmbeddedAssetIo::new();
-        embedded.add_asset(&Path::new("asset.png"), &[1, 2, 3]);
-        embedded.add_asset(&Path::new("other_asset.png"), &[4, 5, 6]);
+        embedded.add_asset(Path::new("asset.png"), &[1, 2, 3]);
+        embedded.add_asset(Path::new("other_asset.png"), &[4, 5, 6]);
 
         assert!(embedded.load_path_sync(&Path::new("asset.png")).is_ok());
         assert_eq!(
@@ -159,8 +159,8 @@ mod tests {
     #[test]
     fn is_directory() {
         let mut embedded = EmbeddedAssetIo::new();
-        embedded.add_asset(&Path::new("asset.png"), &[]);
-        embedded.add_asset(&Path::new("directory/asset.png"), &[]);
+        embedded.add_asset(Path::new("asset.png"), &[]);
+        embedded.add_asset(Path::new("directory/asset.png"), &[]);
 
         assert!(!embedded
             .get_metadata(&Path::new("asset.png"))
@@ -184,9 +184,9 @@ mod tests {
     #[test]
     fn read_directory() {
         let mut embedded = EmbeddedAssetIo::new();
-        embedded.add_asset(&Path::new("asset.png"), &[]);
-        embedded.add_asset(&Path::new("directory/asset.png"), &[]);
-        embedded.add_asset(&Path::new("directory/asset2.png"), &[]);
+        embedded.add_asset(Path::new("asset.png"), &[]);
+        embedded.add_asset(Path::new("directory/asset.png"), &[]);
+        embedded.add_asset(Path::new("directory/asset2.png"), &[]);
 
         assert!(embedded.read_directory(&Path::new("asset.png")).is_err());
         assert!(embedded.read_directory(&Path::new("directory")).is_ok());

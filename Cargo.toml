@@ -21,3 +21,6 @@ features = ["bevy_asset"]
 
 [build-dependencies]
 cargo-emit = "0.2.1"
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = "0.3"
