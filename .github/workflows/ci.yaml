@@ -100,18 +100,9 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: rustfmt
-          override: true
+      - uses: dtolnay/rust-toolchain@stable
       - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
 
   deny:
     name: Deny
@@ -119,27 +110,13 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            profile: minimal
-            override: true
-      - name: Install cargo quickinstall
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-quickinstall
-      - name: Install cargo deny
-        uses: actions-rs/cargo@v1
-        with:
-          command: quickinstall
-          args: cargo-deny
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install tooling
+        run: |
+          cargo install cargo-quickinstall
+          cargo quickinstall cargo-deny
       - name: Run cargo deny
-        uses: actions-rs/cargo@v1
-        with:
-          command: deny
-          args: check
+        run: cargo deny check
 
   doc:
     name: Doc
