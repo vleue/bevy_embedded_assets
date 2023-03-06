@@ -58,8 +58,7 @@ jobs:
           target: wasm32-unknown-unknown
       - name: Install wasm-bindgen
         run: |
-          cargo install cargo-quickinstall
-          cargo quickinstall wasm-bindgen-cli
+          cargo install wasm-bindgen-cli
       - name: Run cargo test
         run: cargo test --target wasm32-unknown-unknown
 
