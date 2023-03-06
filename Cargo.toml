@@ -1,6 +1,6 @@
 [package]
 name = "bevy_embedded_assets"
-version = "0.6.1"
+version = "0.7.0"
 authors = ["François Mockers <mockersf@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -14,9 +14,8 @@ categories = ["game-development"]
 
 
 [dependencies.bevy]
-version = "0.9"
+version = "0.10"
 default-features = false
-git = "https://github.com/bevyengine/bevy"
 features = ["bevy_asset"]
 
 [build-dependencies]

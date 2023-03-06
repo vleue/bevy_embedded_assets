@@ -105,7 +105,11 @@ impl AssetIo for EmbeddedAssetIo {
         }
     }
 
-    fn watch_path_for_changes(&self, _path: &Path) -> Result<(), AssetIoError> {
+    fn watch_path_for_changes(
+        &self,
+        _path: &Path,
+        _to_reload: Option<PathBuf>,
+    ) -> Result<(), AssetIoError> {
         Ok(())
     }
 
