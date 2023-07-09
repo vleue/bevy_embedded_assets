@@ -12,9 +12,8 @@ homepage = "https://github.com/vleue/bevy_embedded_assets"
 documentation = "https://docs.rs/bevy_embedded_assets"
 categories = ["game-development"]
 
-
 [dependencies.bevy]
-version = "0.10"
+version = "0.11"
 default-features = false
 features = ["bevy_asset"]
 

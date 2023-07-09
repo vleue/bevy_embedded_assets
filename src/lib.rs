@@ -15,7 +15,7 @@
 use std::path::{Path, PathBuf};
 
 use bevy::{
-    asset::{AssetIo, AssetIoError, FileType, Metadata},
+    asset::{AssetIo, AssetIoError, ChangeWatcher, FileType, Metadata},
     utils::HashMap,
 };
 
@@ -113,7 +113,7 @@ impl AssetIo for EmbeddedAssetIo {
         Ok(())
     }
 
-    fn watch_for_changes(&self) -> Result<(), AssetIoError> {
+    fn watch_for_changes(&self, _configuration: &ChangeWatcher) -> Result<(), AssetIoError> {
         Ok(())
     }
 
