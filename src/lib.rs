@@ -113,7 +113,7 @@ impl AssetIo for EmbeddedAssetIo {
         Ok(())
     }
 
-    fn watch_for_changes(&self, configuration: &ChangeWatcher) -> Result<(), AssetIoError> {
+    fn watch_for_changes(&self, _configuration: &ChangeWatcher) -> Result<(), AssetIoError> {
         Ok(())
     }
 
