@@ -5,9 +5,7 @@ vulnerability = "deny"
 unmaintained = "deny"
 yanked = "deny"
 notice = "deny"
-ignore = [
-    "RUSTSEC-2022-0048", # from xml-rs 0.8.4 - unmaintained - it's used in a build script of winit
-]
+ignore = []
 
 [licenses]
 unlicensed = "deny"
@@ -30,7 +28,21 @@ multiple-versions = "deny"
 # wildcards = "deny"
 # Certain crates/versions that will be skipped when doing duplicate detection.
 skip = [
-    { name = "redox_syscall", version = "0.2" },
+    { name = "hashbrown", version = "0.12" },
+    { name = "indexmap", version = "1.9" },
+    { name = "num_enum", version = "0.5" },
+    { name = "num_enum_derive", version = "0.5" },
+    { name = "regex-automata", version = "0.1" },
+    { name = "regex-syntax", version = "0.6" },
+    { name = "syn", version = "1.0" },
+    { name = "windows-targets", version = "0.42" },
+    { name = "windows_aarch64_gnullvm", version = "0.42" },
+    { name = "windows_aarch64_msvc", version = "0.42" },
+    { name = "windows_i686_gnu", version = "0.42" },
+    { name = "windows_i686_msvc", version = "0.42" },
+    { name = "windows_x86_64_gnu", version = "0.42" },
+    { name = "windows_x86_64_gnullvm", version = "0.42" },
+    { name = "windows_x86_64_msvc", version = "0.42" },
 ]
 
 [sources]
