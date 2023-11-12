@@ -61,8 +61,9 @@ fn main() {
 
         let mut file = File::create(dest_path).unwrap();
         file.write_all(
-        "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
-#[allow(unused_variables, clippy::non_ascii_literal)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){\n"
+            "/// Generated function that will embed all assets.
+#[allow(unused_variables, unused_qualifications, clippy::non_ascii_literal)]
+fn include_all_assets(mut registry: impl EmbeddedRegistry){\n"
                 .as_ref(),
         )
         .unwrap();
@@ -76,12 +77,12 @@ fn main() {
                 let mut path = path.to_string_lossy().to_string();
                 if building_for_wasm {
                     // building for wasm. replace paths with forward slash in case we're building from windows
-                    path = path.replace('\\', "/");
+                    path = path.replace(std::path::MAIN_SEPARATOR, "/");
                 }
                 cargo_emit::rerun_if_changed!(fullpath.to_string_lossy());
                 file.write_all(
                     format!(
-                        r#"embedded.add_asset(std::path::Path::new({:?}), include_bytes!({:?}));
+                        r#"    registry.insert_included_asset({:?}, include_bytes!({:?}));
 "#,
                         path,
                         fullpath.to_string_lossy()
@@ -98,8 +99,9 @@ fn main() {
 
         let mut file = File::create(dest_path).unwrap();
         file.write_all(
-            "/// Generated function that will add all assets to the [`EmbeddedAssetIo`].
-    #[allow(unused_variables)] pub fn include_all_assets(embedded: &mut EmbeddedAssetIo){}"
+            "/// Generated function that will embed all assets.
+#[allow(unused_variables, unused_qualifications, clippy::non_ascii_literal)]
+fn include_all_assets(registry: impl EmbeddedRegistry){}"
                 .as_ref(),
         )
         .unwrap();

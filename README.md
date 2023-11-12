@@ -13,19 +13,22 @@ use bevy::prelude::*;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 
 fn main() {
-    App::new().add_plugins(
-        DefaultPlugins
-            .build()
-            .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
-    );
+    App::new().add_plugins((EmbeddedAssetPlugin::default(), DefaultPlugins));
 }
 ```
+
+`EmbeddedAssetPlugin` has three modes:
+
+* `PluginMode::AutoLoad` will embed the asset folder and make it available through the `embedded://` source
+* `PluginMode::ReplaceDefault` will embed the asset folder and make it available through the default source
+* `PluginMode::ReplaceAndFallback` will embed the asset folder and make it available through the default source. If a fail is not found at runtime, it fallback to the default source for the current platform
 
 ## Bevy Compatibility
 
 |Bevy|bevy_embedded_assets|
 |---|---|
 |main|main|
+|0.12|0.9|
 |0.11|0.8|
 |0.10|0.7|
 |0.9|0.6|
