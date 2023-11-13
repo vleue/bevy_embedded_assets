@@ -141,9 +141,11 @@ impl Plugin for EmbeddedAssetPlugin {
             }
             #[cfg(feature = "default-source")]
             PluginMode::ReplaceAndFallback { path } => {
-                bevy::log::error!(
-                    "plugin EmbeddedAssetPlugin must be added before plugin AssetPlugin when replacing the default asset source"
-                );
+                if app.is_plugin_added::<AssetPlugin>() {
+                    bevy::log::error!(
+                       "plugin EmbeddedAssetPlugin must be added before plugin AssetPlugin when replacing the default asset source"
+                    );
+                }
                 let path = path.clone();
                 app.register_asset_source(
                     AssetSourceId::Default,
