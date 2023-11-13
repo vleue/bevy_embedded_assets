@@ -14,7 +14,7 @@ use futures_lite::Stream;
 
 use crate::{include_all_assets, EmbeddedRegistry};
 
-pub(crate) struct EmbeddedAssetReader {
+pub struct EmbeddedAssetReader {
     loaded: HashMap<&'static Path, &'static [u8]>,
     fallback: Option<Box<dyn AssetReader>>,
 }
@@ -50,7 +50,7 @@ impl EmbeddedAssetReader {
 
     /// Create an [`EmbeddedAssetReader`] loaded with all the assets found by the build script.
     #[must_use]
-    pub(crate) fn preloaded() -> Self {
+    pub fn preloaded() -> Self {
         let mut new = Self {
             loaded: HashMap::default(),
             fallback: None,
@@ -82,7 +82,7 @@ impl EmbeddedAssetReader {
     /// # Errors
     ///
     /// This will returns an error if the path is not known.
-    fn load_path_sync(&self, path: &Path) -> Result<DataReader, AssetReaderError> {
+    pub fn load_path_sync(&self, path: &Path) -> Result<DataReader, AssetReaderError> {
         self.loaded
             .get(path)
             .map(|b| DataReader(b))
@@ -115,7 +115,7 @@ impl EmbeddedAssetReader {
     }
 }
 
-struct DataReader(&'static [u8]);
+pub struct DataReader(pub &'static [u8]);
 
 impl AsyncRead for DataReader {
     fn poll_read(
