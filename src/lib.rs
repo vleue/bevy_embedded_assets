@@ -28,6 +28,8 @@ use bevy::{
 mod asset_reader;
 #[cfg(feature = "default-source")]
 pub use asset_reader::EmbeddedAssetReader;
+#[cfg(feature = "default-source")]
+pub use asset_reader::DataReader;
 
 include!(concat!(env!("OUT_DIR"), "/include_all_assets.rs"));
 
