@@ -17,15 +17,15 @@ use crate::{include_all_assets, EmbeddedRegistry};
 /// Struct which can be used to retrieve embedded assets directly
 /// without the normal Bevy `Handle<T>` approach.  This is useful
 /// for cases where you need an asset outside the Bevy ECS environment.
-/// 
+///
 /// This is only available when the `default-source` cargo feature is enabled.
-/// 
+///
 /// Example usage is below which assumes you have an asset named `image.png`
 /// in your `assets` folder (which this crate embeds at compile time).
 /// ```rust
-/// use bevy_embedded_assets::EmbeddedAssetReader;
+/// use bevy_embedded_assets::{DataReader, EmbeddedAssetReader};
 /// use std::path::Path;
-/// 
+///
 /// fn some_bevy_system() {
 ///     let embedded: EmbeddedAssetReader = EmbeddedAssetReader::preloaded();
 ///     let reader: DataReader = embedded.load_path_sync(&Path::new("image.png")).unwrap();
@@ -33,6 +33,7 @@ use crate::{include_all_assets, EmbeddedRegistry};
 ///     // Do what you need with the data
 /// }
 /// ```
+#[allow(clippy::module_name_repetitions)]
 pub struct EmbeddedAssetReader {
     loaded: HashMap<&'static Path, &'static [u8]>,
     fallback: Option<Box<dyn AssetReader>>,
@@ -68,7 +69,7 @@ impl EmbeddedAssetReader {
     }
 
     /// Create an [`EmbeddedAssetReader`] loaded with all the assets found by the build script.
-    /// 
+    ///
     /// This ensures the [`EmbeddedAssetReader`] has all (embedded) assets loaded and can be used
     /// directly without the typical Bevy `Handle<T>` approach.  Retrieve assets directly after
     /// calling `preloaded` with [`EmbeddedAssetReader::load_path_sync()`].
@@ -140,7 +141,7 @@ impl EmbeddedAssetReader {
 
 /// A wrapper around the raw bytes of an asset.
 /// This is returned by [`EmbeddedAssetReader::load_path_sync()`].
-/// 
+///
 /// To get the raw data, use `reader.0`.
 #[derive(Default, Debug, Clone, Copy)]
 pub struct DataReader(pub &'static [u8]);
