@@ -14,7 +14,26 @@ use futures_lite::Stream;
 
 use crate::{include_all_assets, EmbeddedRegistry};
 
-pub(crate) struct EmbeddedAssetReader {
+/// Struct which can be used to retrieve embedded assets directly
+/// without the normal Bevy `Handle<T>` approach.  This is useful
+/// for cases where you need an asset outside the Bevy ECS environment.
+/// 
+/// This is only available when the `default-source` cargo feature is enabled.
+/// 
+/// Example usage is below which assumes you have an asset named `image.png`
+/// in your `assets` folder (which this crate embeds at compile time).
+/// ```rust
+/// use bevy_embedded_assets::EmbeddedAssetReader;
+/// use std::path::Path;
+/// 
+/// fn some_bevy_system() {
+///     let embedded: EmbeddedAssetReader = EmbeddedAssetReader::preloaded();
+///     let reader: DataReader = embedded.load_path_sync(&Path::new("image.png")).unwrap();
+///     let image_data: Vec<u8> = reader.0.to_vec();
+///     // Do what you need with the data
+/// }
+/// ```
+pub struct EmbeddedAssetReader {
     loaded: HashMap<&'static Path, &'static [u8]>,
     fallback: Option<Box<dyn AssetReader>>,
 }
@@ -41,7 +60,7 @@ impl EmbeddedRegistry for &mut EmbeddedAssetReader {
 impl EmbeddedAssetReader {
     /// Create an empty [`EmbeddedAssetReader`].
     #[must_use]
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             loaded: HashMap::default(),
             fallback: None,
@@ -49,8 +68,12 @@ impl EmbeddedAssetReader {
     }
 
     /// Create an [`EmbeddedAssetReader`] loaded with all the assets found by the build script.
+    /// 
+    /// This ensures the [`EmbeddedAssetReader`] has all (embedded) assets loaded and can be used
+    /// directly without the typical Bevy `Handle<T>` approach.  Retrieve assets directly after
+    /// calling `preloaded` with [`EmbeddedAssetReader::load_path_sync()`].
     #[must_use]
-    pub(crate) fn preloaded() -> Self {
+    pub fn preloaded() -> Self {
         let mut new = Self {
             loaded: HashMap::default(),
             fallback: None,
@@ -82,7 +105,7 @@ impl EmbeddedAssetReader {
     /// # Errors
     ///
     /// This will returns an error if the path is not known.
-    fn load_path_sync(&self, path: &Path) -> Result<DataReader, AssetReaderError> {
+    pub fn load_path_sync(&self, path: &Path) -> Result<DataReader, AssetReaderError> {
         self.loaded
             .get(path)
             .map(|b| DataReader(b))
@@ -115,7 +138,12 @@ impl EmbeddedAssetReader {
     }
 }
 
-struct DataReader(&'static [u8]);
+/// A wrapper around the raw bytes of an asset.
+/// This is returned by [`EmbeddedAssetReader::load_path_sync()`].
+/// 
+/// To get the raw data, use `reader.0`.
+#[derive(Default, Debug, Clone, Copy)]
+pub struct DataReader(pub &'static [u8]);
 
 impl AsyncRead for DataReader {
     fn poll_read(
