@@ -33,6 +33,7 @@ use crate::{include_all_assets, EmbeddedRegistry};
 ///     // Do what you need with the data
 /// }
 /// ```
+#[allow(clippy::module_name_repetitions)]
 pub struct EmbeddedAssetReader {
     loaded: HashMap<&'static Path, &'static [u8]>,
     fallback: Option<Box<dyn AssetReader>>,
