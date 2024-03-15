@@ -35,7 +35,14 @@ fn main() {
                     for ancestor in path.ancestors() {
                         if let Some(last) = ancestor.file_name() {
                             if last == "target" {
-                                return ancestor.parent().map(|p| p.join("assets"));
+                                return ancestor.parent().map(|parent| {
+                                    let imported_dir = parent.join("imported_assets");
+                                    return if imported_dir.exists() {
+                                        imported_dir.join("Default")
+                                    } else {
+                                        parent.join("assets")
+                                    };
+                                });
                             }
                         }
                     }

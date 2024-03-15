@@ -138,7 +138,9 @@ impl Plugin for EmbeddedAssetPlugin {
                 }
                 app.register_asset_source(
                     AssetSourceId::Default,
-                    AssetSource::build().with_reader(|| Box::new(EmbeddedAssetReader::preloaded())),
+                    AssetSource::build()
+                        .with_reader(|| Box::new(EmbeddedAssetReader::preloaded()))
+                        .with_processed_reader(|| Box::new(EmbeddedAssetReader::preloaded())),
                 );
             }
             #[cfg(feature = "default-source")]
