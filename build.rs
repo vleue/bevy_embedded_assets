@@ -37,11 +37,11 @@ fn main() {
                             if last == "target" {
                                 return ancestor.parent().map(|parent| {
                                     let imported_dir = parent.join("imported_assets");
-                                    return if imported_dir.exists() {
+                                    if imported_dir.exists() {
                                         imported_dir.join("Default")
                                     } else {
                                         parent.join("assets")
-                                    };
+                                    }
                                 });
                             }
                         }
