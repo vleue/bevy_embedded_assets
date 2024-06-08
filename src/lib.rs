@@ -50,7 +50,7 @@ include!(concat!(env!("OUT_DIR"), "/include_all_assets.rs"));
 /// # let mut app = App::new();
 /// app.add_plugins((EmbeddedAssetPlugin::default(), DefaultPlugins));
 /// # app.init_asset::<MyAsset>();
-/// # let asset_server: Mut<'_, AssetServer> = app.world.resource_mut::<AssetServer>();
+/// # let asset_server: Mut<'_, AssetServer> = app.world_mut().resource_mut::<AssetServer>();
 /// let handle: Handle<MyAsset> = asset_server.load("embedded://example_asset.test");
 /// # }
 /// ```
@@ -69,7 +69,7 @@ include!(concat!(env!("OUT_DIR"), "/include_all_assets.rs"));
 /// # let mut app = App::new();
 /// app.add_plugins((EmbeddedAssetPlugin { mode: PluginMode::ReplaceDefault }, DefaultPlugins));
 /// # app.init_asset::<MyAsset>();
-/// # let asset_server: Mut<'_, AssetServer> = app.world.resource_mut::<AssetServer>();
+/// # let asset_server: Mut<'_, AssetServer> = app.world_mut().resource_mut::<AssetServer>();
 /// let handle: Handle<MyAsset> = asset_server.load("example_asset.test");
 /// # }
 /// ```
@@ -124,7 +124,7 @@ impl Plugin for EmbeddedAssetPlugin {
         match &self.mode {
             PluginMode::AutoLoad => {
                 if app.is_plugin_added::<AssetPlugin>() {
-                    let mut registry = app.world.resource_mut::<EmbeddedAssetRegistry>();
+                    let mut registry = app.world_mut().resource_mut::<EmbeddedAssetRegistry>();
                     include_all_assets(registry.as_mut());
                     app.init_resource::<AllTheEmbedded>();
                 }
@@ -165,9 +165,12 @@ impl Plugin for EmbeddedAssetPlugin {
 
     fn finish(&self, app: &mut App) {
         if matches!(self.mode, PluginMode::AutoLoad)
-            && app.world.remove_resource::<AllTheEmbedded>().is_none()
+            && app
+                .world_mut()
+                .remove_resource::<AllTheEmbedded>()
+                .is_none()
         {
-            let mut registry = app.world.resource_mut::<EmbeddedAssetRegistry>();
+            let mut registry = app.world_mut().resource_mut::<EmbeddedAssetRegistry>();
             include_all_assets(registry.as_mut());
         }
     }
