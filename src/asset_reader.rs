@@ -6,11 +6,12 @@ use std::{
 };
 
 use bevy::{
-    asset::io::{AssetReader, AssetReaderError, PathStream, Reader},
+    asset::io::{AssetReader, AssetReaderError, ErasedAssetReader, PathStream, Reader},
     utils::HashMap,
 };
-use futures_io::AsyncRead;
+use futures_io::{AsyncRead, AsyncSeek};
 use futures_lite::Stream;
+use thiserror::Error;
 
 use crate::{include_all_assets, EmbeddedRegistry};
 
@@ -36,7 +37,7 @@ use crate::{include_all_assets, EmbeddedRegistry};
 #[allow(clippy::module_name_repetitions)]
 pub struct EmbeddedAssetReader {
     loaded: HashMap<&'static Path, &'static [u8]>,
-    fallback: Option<Box<dyn AssetReader>>,
+    fallback: Option<Box<dyn ErasedAssetReader>>,
 }
 
 impl std::fmt::Debug for EmbeddedAssetReader {
@@ -86,7 +87,7 @@ impl EmbeddedAssetReader {
     /// Create an [`EmbeddedAssetReader`] loaded with all the assets found by the build script.
     #[must_use]
     pub(crate) fn preloaded_with_default(
-        mut default: impl FnMut() -> Box<dyn AssetReader> + Send + Sync + 'static,
+        mut default: impl FnMut() -> Box<dyn ErasedAssetReader> + Send + Sync + 'static,
     ) -> Self {
         let mut new = Self {
             loaded: HashMap::default(),
@@ -157,6 +158,25 @@ impl AsyncRead for DataReader {
     }
 }
 
+impl AsyncSeek for DataReader {
+    fn poll_seek(
+        self: Pin<&mut Self>,
+        _: &mut std::task::Context<'_>,
+        _pos: futures_io::SeekFrom,
+    ) -> Poll<futures_io::Result<u64>> {
+        Poll::Ready(Err(futures_io::Error::new(
+            futures_io::ErrorKind::Other,
+            EmbeddedDataReaderError::SeekNotSupported,
+        )))
+    }
+}
+
+#[derive(Error, Debug)]
+enum EmbeddedDataReaderError {
+    #[error("Seek is not supported when embeded")]
+    SeekNotSupported,
+}
+
 struct DirReader(Vec<PathBuf>);
 
 impl Stream for DirReader {
@@ -183,60 +203,45 @@ pub(crate) fn get_meta_path(path: &Path) -> PathBuf {
 }
 
 impl AssetReader for EmbeddedAssetReader {
-    fn read<'a>(
-        &'a self,
-        path: &'a Path,
-    ) -> bevy::utils::BoxedFuture<'a, Result<Box<Reader<'a>>, AssetReaderError>> {
+    async fn read<'a>(&'a self, path: &'a Path) -> Result<Box<Reader<'a>>, AssetReaderError> {
         if self.has_file_sync(path) {
-            Box::pin(async move {
-                self.load_path_sync(path).map(|reader| {
-                    let boxed: Box<Reader> = Box::new(reader);
-                    boxed
-                })
-            })
-        } else if let Some(fallback) = self.fallback.as_ref() {
-            fallback.read(path)
-        } else {
-            Box::pin(async move { Err(AssetReaderError::NotFound(path.to_path_buf())) })
-        }
-    }
-
-    fn read_meta<'a>(
-        &'a self,
-        path: &'a Path,
-    ) -> bevy::utils::BoxedFuture<'a, Result<Box<Reader<'a>>, AssetReaderError>> {
-        let meta_path = get_meta_path(path);
-        if self.has_file_sync(&meta_path) {
-            Box::pin(async move {
-                self.load_path_sync(&meta_path).map(|reader| {
-                    let boxed: Box<Reader> = Box::new(reader);
-                    boxed
-                })
-            })
-        } else if let Some(fallback) = self.fallback.as_ref() {
-            fallback.read_meta(path)
-        } else {
-            Box::pin(async move { Err(AssetReaderError::NotFound(meta_path)) })
-        }
-    }
-
-    fn read_directory<'a>(
-        &'a self,
-        path: &'a Path,
-    ) -> bevy::utils::BoxedFuture<'a, Result<Box<PathStream>, AssetReaderError>> {
-        Box::pin(async move {
-            self.read_directory_sync(path).map(|read_dir| {
-                let boxed: Box<PathStream> = Box::new(read_dir);
+            self.load_path_sync(path).map(|reader| {
+                let boxed: Box<Reader> = Box::new(reader);
                 boxed
             })
+        } else if let Some(fallback) = self.fallback.as_ref() {
+            fallback.read(path).await
+        } else {
+            Err(AssetReaderError::NotFound(path.to_path_buf()))
+        }
+    }
+
+    async fn read_meta<'a>(&'a self, path: &'a Path) -> Result<Box<Reader<'a>>, AssetReaderError> {
+        let meta_path = get_meta_path(path);
+        if self.has_file_sync(&meta_path) {
+            self.load_path_sync(&meta_path).map(|reader| {
+                let boxed: Box<Reader> = Box::new(reader);
+                boxed
+            })
+        } else if let Some(fallback) = self.fallback.as_ref() {
+            fallback.read_meta(path).await
+        } else {
+            Err(AssetReaderError::NotFound(meta_path))
+        }
+    }
+
+    async fn read_directory<'a>(
+        &'a self,
+        path: &'a Path,
+    ) -> Result<Box<PathStream>, AssetReaderError> {
+        self.read_directory_sync(path).map(|read_dir| {
+            let boxed: Box<PathStream> = Box::new(read_dir);
+            boxed
         })
     }
 
-    fn is_directory<'a>(
-        &'a self,
-        path: &'a Path,
-    ) -> bevy::utils::BoxedFuture<'a, Result<bool, AssetReaderError>> {
-        Box::pin(async move { Ok(self.is_directory_sync(path)) })
+    async fn is_directory<'a>(&'a self, path: &'a Path) -> Result<bool, AssetReaderError> {
+        Ok(self.is_directory_sync(path))
     }
 }
 

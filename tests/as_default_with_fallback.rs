@@ -2,8 +2,9 @@
 
 use std::fmt::Display;
 
-use bevy::{prelude::*, utils::thiserror::Error};
+use bevy::prelude::*;
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
+use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug)]
 pub struct TestAsset {
@@ -26,21 +27,19 @@ impl bevy::asset::AssetLoader for TestAssetLoader {
     type Asset = TestAsset;
     type Settings = ();
     type Error = TestError;
-    fn load<'a>(
+    async fn load<'a>(
         &'a self,
-        reader: &'a mut bevy::asset::io::Reader,
+        reader: &'a mut bevy::asset::io::Reader<'_>,
         _: &'a (),
-        _: &'a mut bevy::asset::LoadContext,
-    ) -> bevy::utils::BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
-            let mut bytes = Vec::new();
-            bevy::asset::AsyncReadExt::read_to_end(reader, &mut bytes)
-                .await
-                .unwrap();
+        _: &'a mut bevy::asset::LoadContext<'_>,
+    ) -> Result<Self::Asset, Self::Error> {
+        let mut bytes = Vec::new();
+        bevy::asset::AsyncReadExt::read_to_end(reader, &mut bytes)
+            .await
+            .unwrap();
 
-            Ok(TestAsset {
-                value: String::from_utf8(bytes).unwrap(),
-            })
+        Ok(TestAsset {
+            value: String::from_utf8(bytes).unwrap(),
         })
     }
 
@@ -65,19 +64,19 @@ fn work_with_embedded_source_plugin_before() {
     .init_asset_loader::<TestAssetLoader>();
     app.finish();
 
-    let asset_server = app.world.resource_mut::<AssetServer>();
+    let asset_server = app.world_mut().resource_mut::<AssetServer>();
     let handle_1: Handle<TestAsset> = asset_server.load("example_asset.test");
     let handle_2: Handle<TestAsset> = asset_server.load("açèt.test");
     let handle_3: Handle<TestAsset> = asset_server.load("subdir/other_asset.test");
     let handle_4: Handle<TestAsset> = asset_server.load("asset.test");
     app.update();
-    let test_assets = app.world.resource_mut::<Assets<TestAsset>>();
-    let asset = test_assets.get(handle_1).unwrap();
+    let test_assets = app.world_mut().resource_mut::<Assets<TestAsset>>();
+    let asset = test_assets.get(&handle_1).unwrap();
     assert_eq!(asset.value, "hello");
-    let asset = test_assets.get(handle_2).unwrap();
+    let asset = test_assets.get(&handle_2).unwrap();
     assert_eq!(asset.value, "with special chars");
-    let asset = test_assets.get(handle_3).unwrap();
+    let asset = test_assets.get(&handle_3).unwrap();
     assert_eq!(asset.value, "in subdirectory");
-    let asset = test_assets.get(handle_4).unwrap();
+    let asset = test_assets.get(&handle_4).unwrap();
     assert_eq!(asset.value, "at runtime");
 }
