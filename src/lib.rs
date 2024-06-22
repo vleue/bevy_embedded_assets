@@ -1,3 +1,4 @@
+#![allow(clippy::needless_doctest_main)]
 #![doc = include_str!("../README.md")]
 #![warn(
     missing_debug_implementations,
