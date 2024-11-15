@@ -6,7 +6,9 @@ use std::{
 };
 
 use bevy::{
-    asset::io::{AssetReader, AssetReaderError, ErasedAssetReader, PathStream, Reader},
+    asset::io::{
+        AssetReader, AssetReaderError, AsyncSeekForward, ErasedAssetReader, PathStream, Reader,
+    },
     utils::HashMap,
 };
 use futures_io::{AsyncRead, AsyncSeek};
@@ -147,6 +149,20 @@ impl EmbeddedAssetReader {
 #[derive(Default, Debug, Clone, Copy)]
 pub struct DataReader(pub &'static [u8]);
 
+impl Reader for DataReader {
+    fn read_to_end<'a>(
+        &'a mut self,
+        buf: &'a mut Vec<u8>,
+    ) -> bevy::asset::io::StackFuture<
+        'a,
+        std::io::Result<usize>,
+        { bevy::asset::io::STACK_FUTURE_SIZE },
+    > {
+        let future = futures_lite::AsyncReadExt::read_to_end(self, buf);
+        bevy::asset::io::StackFuture::from(future)
+    }
+}
+
 impl AsyncRead for DataReader {
     fn poll_read(
         self: Pin<&mut Self>,
@@ -163,6 +179,19 @@ impl AsyncSeek for DataReader {
         self: Pin<&mut Self>,
         _: &mut std::task::Context<'_>,
         _pos: futures_io::SeekFrom,
+    ) -> Poll<futures_io::Result<u64>> {
+        Poll::Ready(Err(futures_io::Error::new(
+            futures_io::ErrorKind::Other,
+            EmbeddedDataReaderError::SeekNotSupported,
+        )))
+    }
+}
+
+impl AsyncSeekForward for DataReader {
+    fn poll_seek_forward(
+        self: Pin<&mut Self>,
+        _: &mut std::task::Context<'_>,
+        _offset: u64,
     ) -> Poll<futures_io::Result<u64>> {
         Poll::Ready(Err(futures_io::Error::new(
             futures_io::ErrorKind::Other,
@@ -203,10 +232,11 @@ pub(crate) fn get_meta_path(path: &Path) -> PathBuf {
 }
 
 impl AssetReader for EmbeddedAssetReader {
-    async fn read<'a>(&'a self, path: &'a Path) -> Result<Box<Reader<'a>>, AssetReaderError> {
+    // async fn read<'a>(&'a self, path: &'a Path) -> Result<Box<dyn Reader>, AssetReaderError> {
+    async fn read<'a>(&'a self, path: &'a Path) -> Result<impl Reader + 'a, AssetReaderError> {
         if self.has_file_sync(path) {
             self.load_path_sync(path).map(|reader| {
-                let boxed: Box<Reader> = Box::new(reader);
+                let boxed: Box<dyn Reader> = Box::new(reader);
                 boxed
             })
         } else if let Some(fallback) = self.fallback.as_ref() {
@@ -216,11 +246,11 @@ impl AssetReader for EmbeddedAssetReader {
         }
     }
 
-    async fn read_meta<'a>(&'a self, path: &'a Path) -> Result<Box<Reader<'a>>, AssetReaderError> {
+    async fn read_meta<'a>(&'a self, path: &'a Path) -> Result<impl Reader + 'a, AssetReaderError> {
         let meta_path = get_meta_path(path);
         if self.has_file_sync(&meta_path) {
             self.load_path_sync(&meta_path).map(|reader| {
-                let boxed: Box<Reader> = Box::new(reader);
+                let boxed: Box<dyn Reader> = Box::new(reader);
                 boxed
             })
         } else if let Some(fallback) = self.fallback.as_ref() {

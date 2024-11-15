@@ -1,6 +1,9 @@
 use std::fmt::Display;
 
-use bevy::prelude::*;
+use bevy::{
+    asset::{io::Reader, LoadContext},
+    prelude::*,
+};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use thiserror::Error;
 
@@ -25,11 +28,11 @@ impl bevy::asset::AssetLoader for TestAssetLoader {
     type Asset = TestAsset;
     type Settings = ();
     type Error = TestError;
-    async fn load<'a>(
-        &'a self,
-        reader: &'a mut bevy::asset::io::Reader<'_>,
-        _: &'a (),
-        _: &'a mut bevy::asset::LoadContext<'_>,
+    async fn load(
+        &self,
+        reader: &mut dyn Reader,
+        _: &(),
+        _: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         bevy::asset::AsyncReadExt::read_to_end(reader, &mut bytes)
