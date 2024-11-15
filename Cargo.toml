@@ -32,3 +32,8 @@ cargo-emit = "0.2.1"
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = "0.3"
+
+# stripping is required to be able to run test on wasm32-unknown-unknown with rust 1.82 on ubuntu
+# https://github.com/rustwasm/wasm-bindgen/issues/4211
+[profile.dev]
+strip = true
