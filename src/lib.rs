@@ -15,22 +15,24 @@
 
 use std::path::PathBuf;
 
-use bevy::{
-    asset::io::embedded::EmbeddedAssetRegistry,
-    prelude::{App, AssetPlugin, Plugin, Resource},
-};
+use bevy_app::App;
+use bevy_app::Plugin;
+use bevy_asset::io::embedded::EmbeddedAssetRegistry;
+use bevy_asset::AssetPlugin;
+use bevy_ecs::resource::Resource;
 #[cfg(feature = "default-source")]
-use bevy::{
-    asset::io::{AssetSource, AssetSourceId},
-    prelude::AssetApp,
+use {
+    bevy_asset::{
+        io::{AssetSource, AssetSourceId},
+        AssetApp,
+    },
+    log::error,
 };
 
 #[cfg(feature = "default-source")]
 mod asset_reader;
 #[cfg(feature = "default-source")]
-pub use asset_reader::DataReader;
-#[cfg(feature = "default-source")]
-pub use asset_reader::EmbeddedAssetReader;
+pub use {asset_reader::DataReader, asset_reader::EmbeddedAssetReader};
 
 include!(concat!(env!("OUT_DIR"), "/include_all_assets.rs"));
 
@@ -133,7 +135,7 @@ impl Plugin for EmbeddedAssetPlugin {
             #[cfg(feature = "default-source")]
             PluginMode::ReplaceDefault => {
                 if app.is_plugin_added::<AssetPlugin>() {
-                    bevy::log::error!(
+                    error!(
                         "plugin EmbeddedAssetPlugin must be added before plugin AssetPlugin when replacing the default asset source"
                     );
                 }
@@ -147,7 +149,7 @@ impl Plugin for EmbeddedAssetPlugin {
             #[cfg(feature = "default-source")]
             PluginMode::ReplaceAndFallback { path } => {
                 if app.is_plugin_added::<AssetPlugin>() {
-                    bevy::log::error!(
+                    error!(
                        "plugin EmbeddedAssetPlugin must be added before plugin AssetPlugin when replacing the default asset source"
                     );
                 }
