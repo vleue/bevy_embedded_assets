@@ -13,7 +13,7 @@ use futures_io::{AsyncRead, AsyncSeek};
 use futures_lite::Stream;
 use thiserror::Error;
 
-use crate::{include_all_assets, EmbeddedRegistry};
+use crate::{EmbeddedRegistry, include_all_assets};
 
 /// Struct which can be used to retrieve embedded assets directly
 /// without the normal Bevy `Handle<T>` approach.  This is useful
@@ -321,12 +321,16 @@ mod tests {
         embedded.add_asset(Path::new("asset.png"), &[]);
         embedded.add_asset(Path::new("directory/asset.png"), &[]);
         embedded.add_asset(Path::new("directory/asset2.png"), &[]);
-        assert!(embedded
-            .read_directory_sync(&Path::new("asset.png"))
-            .is_err());
-        assert!(embedded
-            .read_directory_sync(&Path::new("directory"))
-            .is_ok());
+        assert!(
+            embedded
+                .read_directory_sync(&Path::new("asset.png"))
+                .is_err()
+        );
+        assert!(
+            embedded
+                .read_directory_sync(&Path::new("directory"))
+                .is_ok()
+        );
         let mut list = embedded
             .read_directory_sync(&Path::new("directory"))
             .unwrap()

@@ -17,14 +17,14 @@ use std::path::PathBuf;
 
 use bevy_app::App;
 use bevy_app::Plugin;
-use bevy_asset::io::embedded::EmbeddedAssetRegistry;
 use bevy_asset::AssetPlugin;
+use bevy_asset::io::embedded::EmbeddedAssetRegistry;
 use bevy_ecs::resource::Resource;
 #[cfg(feature = "default-source")]
 use {
     bevy_asset::{
-        io::{AssetSource, AssetSourceId},
         AssetApp,
+        io::{AssetSource, AssetSourceId},
     },
     log::error,
 };
@@ -150,7 +150,7 @@ impl Plugin for EmbeddedAssetPlugin {
             PluginMode::ReplaceAndFallback { path } => {
                 if app.is_plugin_added::<AssetPlugin>() {
                     error!(
-                       "plugin EmbeddedAssetPlugin must be added before plugin AssetPlugin when replacing the default asset source"
+                        "plugin EmbeddedAssetPlugin must be added before plugin AssetPlugin when replacing the default asset source"
                     );
                 }
                 let path = path.clone();
