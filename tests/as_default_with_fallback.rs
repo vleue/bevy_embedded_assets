@@ -3,7 +3,7 @@
 use std::fmt::Display;
 
 use bevy::{
-    asset::{io::Reader, LoadContext},
+    asset::{LoadContext, io::Reader},
     prelude::*,
 };
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};

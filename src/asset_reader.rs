@@ -1,21 +1,19 @@
 use std::{
+    collections::HashMap,
     io::Read,
     path::{Path, PathBuf},
     pin::Pin,
     task::Poll,
 };
 
-use bevy::{
-    asset::io::{
-        AssetReader, AssetReaderError, AsyncSeekForward, ErasedAssetReader, PathStream, Reader,
-    },
-    utils::HashMap,
+use bevy_asset::io::{
+    AssetReader, AssetReaderError, AsyncSeekForward, ErasedAssetReader, PathStream, Reader,
 };
 use futures_io::{AsyncRead, AsyncSeek};
 use futures_lite::Stream;
 use thiserror::Error;
 
-use crate::{include_all_assets, EmbeddedRegistry};
+use crate::{EmbeddedRegistry, include_all_assets};
 
 /// Struct which can be used to retrieve embedded assets directly
 /// without the normal Bevy `Handle<T>` approach.  This is useful
@@ -153,13 +151,13 @@ impl Reader for DataReader {
     fn read_to_end<'a>(
         &'a mut self,
         buf: &'a mut Vec<u8>,
-    ) -> bevy::asset::io::StackFuture<
+    ) -> bevy_asset::io::StackFuture<
         'a,
         std::io::Result<usize>,
-        { bevy::asset::io::STACK_FUTURE_SIZE },
+        { bevy_asset::io::STACK_FUTURE_SIZE },
     > {
         let future = futures_lite::AsyncReadExt::read_to_end(self, buf);
-        bevy::asset::io::StackFuture::from(future)
+        bevy_asset::io::StackFuture::from(future)
     }
 }
 
@@ -323,12 +321,16 @@ mod tests {
         embedded.add_asset(Path::new("asset.png"), &[]);
         embedded.add_asset(Path::new("directory/asset.png"), &[]);
         embedded.add_asset(Path::new("directory/asset2.png"), &[]);
-        assert!(embedded
-            .read_directory_sync(&Path::new("asset.png"))
-            .is_err());
-        assert!(embedded
-            .read_directory_sync(&Path::new("directory"))
-            .is_ok());
+        assert!(
+            embedded
+                .read_directory_sync(&Path::new("asset.png"))
+                .is_err()
+        );
+        assert!(
+            embedded
+                .read_directory_sync(&Path::new("directory"))
+                .is_ok()
+        );
         let mut list = embedded
             .read_directory_sync(&Path::new("directory"))
             .unwrap()
