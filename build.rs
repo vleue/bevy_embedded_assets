@@ -75,15 +75,16 @@ fn include_all_assets(mut registry: impl EmbeddedRegistry){\n"
         )
         .unwrap();
 
-        let building_for_wasm = std::env::var("CARGO_CFG_TARGET_ARCH") == Ok("wasm32".to_string());
+        let building_for_not_windows =
+            std::env::var("CARGO_CFG_TARGET_OS").is_ok_and(|v| v != "windows");
 
         visit_dirs(&dir)
             .iter()
             .map(|path| (path, path.strip_prefix(&dir).unwrap()))
             .for_each(|(fullpath, path)| {
                 let mut path = path.to_string_lossy().to_string();
-                if building_for_wasm {
-                    // building for wasm. replace paths with forward slash in case we're building from windows
+                if building_for_not_windows {
+                    // replace paths with forward slash in case we're building from windows
                     path = path.replace(std::path::MAIN_SEPARATOR, "/");
                 }
                 cargo_emit::rerun_if_changed!(fullpath.to_string_lossy());
