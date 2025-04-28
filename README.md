@@ -28,6 +28,7 @@ fn main() {
 |Bevy|bevy_embedded_assets|
 |---|---|
 |main|main|
+|0.16|0.13|
 |0.15|0.12|
 |0.14|0.11|
 |0.13|0.10|

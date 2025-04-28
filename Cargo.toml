@@ -1,6 +1,6 @@
 [package]
 name = "bevy_embedded_assets"
-version = "0.13.0-rc.2"
+version = "0.13.0"
 authors = ["François Mockers <mockersf@gmail.com>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
