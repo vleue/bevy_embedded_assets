@@ -178,8 +178,7 @@ impl AsyncSeek for DataReader {
         _: &mut std::task::Context<'_>,
         _pos: futures_io::SeekFrom,
     ) -> Poll<futures_io::Result<u64>> {
-        Poll::Ready(Err(futures_io::Error::new(
-            futures_io::ErrorKind::Other,
+        Poll::Ready(Err(futures_io::Error::other(
             EmbeddedDataReaderError::SeekNotSupported,
         )))
     }
@@ -191,8 +190,7 @@ impl AsyncSeekForward for DataReader {
         _: &mut std::task::Context<'_>,
         _offset: u64,
     ) -> Poll<futures_io::Result<u64>> {
-        Poll::Ready(Err(futures_io::Error::new(
-            futures_io::ErrorKind::Other,
+        Poll::Ready(Err(futures_io::Error::other(
             EmbeddedDataReaderError::SeekNotSupported,
         )))
     }
