@@ -61,6 +61,8 @@ jobs:
           cargo install --force wasm-bindgen-cli
       - name: Run cargo test
         run: cargo test --target wasm32-unknown-unknown
+        env:
+          RUSTFLAGS: --cfg getrandom_backend="wasm_js"
 
   clippy_check:
     name: Clippy
