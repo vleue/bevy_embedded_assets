@@ -32,7 +32,7 @@ fn main() {
                 .ok()
                 .map(|v| Path::new(&v).to_path_buf())
                 .and_then(|path| {
-                    for ancestor in path.ancestors() &&
+                    for ancestor in path.ancestors() {
                         if let Some(last) = ancestor.file_name()
                             && last == "target"
                         {
