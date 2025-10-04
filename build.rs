@@ -33,17 +33,17 @@ fn main() {
                 .map(|v| Path::new(&v).to_path_buf())
                 .and_then(|path| {
                     for ancestor in path.ancestors() {
-                        if let Some(last) = ancestor.file_name() {
-                            if last == "target" {
-                                return ancestor.parent().map(|parent| {
-                                    let imported_dir = parent.join("imported_assets");
-                                    if imported_dir.exists() {
-                                        imported_dir.join("Default")
-                                    } else {
-                                        parent.join("assets")
-                                    }
-                                });
-                            }
+                        if let Some(last) = ancestor.file_name()
+                            && last == "target"
+                        {
+                            return ancestor.parent().map(|parent| {
+                                let imported_dir = parent.join("imported_assets");
+                                if imported_dir.exists() {
+                                    imported_dir.join("Default")
+                                } else {
+                                    parent.join("assets")
+                                }
+                            });
                         }
                     }
                     None
