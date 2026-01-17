@@ -12,7 +12,7 @@ pub struct TestAsset {
     pub value: String,
 }
 
-#[derive(Default)]
+#[derive(Default, TypePath)]
 pub struct TestAssetLoader;
 
 #[derive(Debug, Error)]
