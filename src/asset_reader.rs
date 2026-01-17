@@ -7,7 +7,8 @@ use std::{
 };
 
 use bevy_asset::io::{
-    AssetReader, AssetReaderError, AsyncSeekForward, ErasedAssetReader, PathStream, Reader,
+    AssetReader, AssetReaderError, ErasedAssetReader, PathStream, Reader, ReaderNotSeekableError,
+    SeekableReader,
 };
 use futures_io::{AsyncRead, AsyncSeek};
 use futures_lite::Stream;
@@ -159,6 +160,10 @@ impl Reader for DataReader {
         let future = futures_lite::AsyncReadExt::read_to_end(self, buf);
         bevy_asset::io::StackFuture::from(future)
     }
+
+    fn seekable(&mut self) -> Result<&mut dyn SeekableReader, ReaderNotSeekableError> {
+        Ok(self)
+    }
 }
 
 impl AsyncRead for DataReader {
@@ -184,21 +189,9 @@ impl AsyncSeek for DataReader {
     }
 }
 
-impl AsyncSeekForward for DataReader {
-    fn poll_seek_forward(
-        self: Pin<&mut Self>,
-        _: &mut std::task::Context<'_>,
-        _offset: u64,
-    ) -> Poll<futures_io::Result<u64>> {
-        Poll::Ready(Err(futures_io::Error::other(
-            EmbeddedDataReaderError::SeekNotSupported,
-        )))
-    }
-}
-
 #[derive(Error, Debug)]
 enum EmbeddedDataReaderError {
-    #[error("Seek is not supported when embeded")]
+    #[error("Seek is not supported when embedded")]
     SeekNotSupported,
 }
 
