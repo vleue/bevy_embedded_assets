@@ -24,7 +24,7 @@ use bevy_ecs::resource::Resource;
 use {
     bevy_asset::{
         AssetApp,
-        io::{AssetSource, AssetSourceId},
+        io::{AssetSource, AssetSourceBuilder, AssetSourceId},
     },
     log::error,
 };
@@ -141,8 +141,7 @@ impl Plugin for EmbeddedAssetPlugin {
                 }
                 app.register_asset_source(
                     AssetSourceId::Default,
-                    AssetSource::build()
-                        .with_reader(|| Box::new(EmbeddedAssetReader::preloaded()))
+                    AssetSourceBuilder::new(|| Box::new(EmbeddedAssetReader::preloaded()))
                         .with_processed_reader(|| Box::new(EmbeddedAssetReader::preloaded())),
                 );
             }
@@ -156,7 +155,7 @@ impl Plugin for EmbeddedAssetPlugin {
                 let path = path.clone();
                 app.register_asset_source(
                     AssetSourceId::Default,
-                    AssetSource::build().with_reader(move || {
+                    AssetSourceBuilder::new(move || {
                         Box::new(EmbeddedAssetReader::preloaded_with_default(
                             AssetSource::get_default_reader(path.clone()),
                         ))

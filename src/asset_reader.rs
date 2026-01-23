@@ -7,7 +7,8 @@ use std::{
 };
 
 use bevy_asset::io::{
-    AssetReader, AssetReaderError, AsyncSeekForward, ErasedAssetReader, PathStream, Reader,
+    AssetReader, AssetReaderError, ErasedAssetReader, PathStream, Reader, ReaderNotSeekableError,
+    SeekableReader,
 };
 use futures_io::{AsyncRead, AsyncSeek};
 use futures_lite::Stream;
@@ -159,6 +160,10 @@ impl Reader for DataReader {
         let future = futures_lite::AsyncReadExt::read_to_end(self, buf);
         bevy_asset::io::StackFuture::from(future)
     }
+
+    fn seekable(&mut self) -> Result<&mut dyn SeekableReader, ReaderNotSeekableError> {
+        Ok(self)
+    }
 }
 
 impl AsyncRead for DataReader {
@@ -184,21 +189,9 @@ impl AsyncSeek for DataReader {
     }
 }
 
-impl AsyncSeekForward for DataReader {
-    fn poll_seek_forward(
-        self: Pin<&mut Self>,
-        _: &mut std::task::Context<'_>,
-        _offset: u64,
-    ) -> Poll<futures_io::Result<u64>> {
-        Poll::Ready(Err(futures_io::Error::other(
-            EmbeddedDataReaderError::SeekNotSupported,
-        )))
-    }
-}
-
 #[derive(Error, Debug)]
 enum EmbeddedDataReaderError {
-    #[error("Seek is not supported when embeded")]
+    #[error("Seek is not supported when embedded")]
     SeekNotSupported,
 }
 
@@ -283,20 +276,20 @@ mod tests {
         let mut embedded = EmbeddedAssetReader::new();
         embedded.add_asset(Path::new("asset.png"), &[1, 2, 3]);
         embedded.add_asset(Path::new("other_asset.png"), &[4, 5, 6]);
-        assert!(embedded.load_path_sync(&Path::new("asset.png")).is_ok());
+        assert!(embedded.load_path_sync(Path::new("asset.png")).is_ok());
         assert_eq!(
-            embedded.load_path_sync(&Path::new("asset.png")).unwrap().0,
+            embedded.load_path_sync(Path::new("asset.png")).unwrap().0,
             [1, 2, 3]
         );
         assert_eq!(
             embedded
-                .load_path_sync(&Path::new("other_asset.png"))
+                .load_path_sync(Path::new("other_asset.png"))
                 .unwrap()
                 .0,
             [4, 5, 6]
         );
-        assert!(embedded.load_path_sync(&Path::new("asset")).is_err());
-        assert!(embedded.load_path_sync(&Path::new("other")).is_err());
+        assert!(embedded.load_path_sync(Path::new("asset")).is_err());
+        assert!(embedded.load_path_sync(Path::new("other")).is_err());
     }
 
     #[cfg_attr(not(target_arch = "wasm32"), test)]
@@ -305,11 +298,11 @@ mod tests {
         let mut embedded = EmbeddedAssetReader::new();
         embedded.add_asset(Path::new("asset.png"), &[]);
         embedded.add_asset(Path::new("directory/asset.png"), &[]);
-        assert!(!embedded.is_directory_sync(&Path::new("asset.png")));
-        assert!(!embedded.is_directory_sync(&Path::new("asset")));
-        assert!(embedded.is_directory_sync(&Path::new("directory")));
-        assert!(embedded.is_directory_sync(&Path::new("directory/")));
-        assert!(!embedded.is_directory_sync(&Path::new("directory/asset")));
+        assert!(!embedded.is_directory_sync(Path::new("asset.png")));
+        assert!(!embedded.is_directory_sync(Path::new("asset")));
+        assert!(embedded.is_directory_sync(Path::new("directory")));
+        assert!(embedded.is_directory_sync(Path::new("directory/")));
+        assert!(!embedded.is_directory_sync(Path::new("directory/asset")));
     }
 
     #[cfg_attr(not(target_arch = "wasm32"), test)]
@@ -321,16 +314,12 @@ mod tests {
         embedded.add_asset(Path::new("directory/asset2.png"), &[]);
         assert!(
             embedded
-                .read_directory_sync(&Path::new("asset.png"))
+                .read_directory_sync(Path::new("asset.png"))
                 .is_err()
         );
-        assert!(
-            embedded
-                .read_directory_sync(&Path::new("directory"))
-                .is_ok()
-        );
+        assert!(embedded.read_directory_sync(Path::new("directory")).is_ok());
         let mut list = embedded
-            .read_directory_sync(&Path::new("directory"))
+            .read_directory_sync(Path::new("directory"))
             .unwrap()
             .0
             .iter()
@@ -350,7 +339,7 @@ mod tests {
 
         let path = "example_asset.test";
 
-        let loaded = embedded.load_path_sync(&Path::new(path));
+        let loaded = embedded.load_path_sync(Path::new(path));
         assert!(loaded.is_ok());
         let raw_asset = loaded.unwrap();
         assert!(String::from_utf8(raw_asset.0.to_vec()).is_ok());
@@ -364,7 +353,7 @@ mod tests {
 
         let path = "açèt.test";
 
-        let loaded = embedded.load_path_sync(&Path::new(path));
+        let loaded = embedded.load_path_sync(Path::new(path));
         assert!(loaded.is_ok());
         let raw_asset = loaded.unwrap();
         assert!(String::from_utf8(raw_asset.0.to_vec()).is_ok());
@@ -381,7 +370,7 @@ mod tests {
 
         let path = "subdir/other_asset.test";
 
-        let loaded = embedded.load_path_sync(&Path::new(path));
+        let loaded = embedded.load_path_sync(Path::new(path));
         assert!(loaded.is_ok());
         let raw_asset = loaded.unwrap();
         assert!(String::from_utf8(raw_asset.0.to_vec()).is_ok());
