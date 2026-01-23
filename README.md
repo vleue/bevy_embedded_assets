@@ -19,25 +19,26 @@ fn main() {
 
 `EmbeddedAssetPlugin` has three modes:
 
-* `PluginMode::AutoLoad` will embed the asset folder and make it available through the `embedded://` source
-* `PluginMode::ReplaceDefault` will embed the asset folder and make it available through the default source
-* `PluginMode::ReplaceAndFallback` will embed the asset folder and make it available through the default source. If a fail is not found at runtime, it fallback to the default source for the current platform
+- `PluginMode::AutoLoad` will embed the asset folder and make it available through the `embedded://` source
+- `PluginMode::ReplaceDefault` will embed the asset folder and make it available through the default source
+- `PluginMode::ReplaceAndFallback` will embed the asset folder and make it available through the default source. If a fail is not found at runtime, it fallback to the default source for the current platform
 
 ## Bevy Compatibility
 
-|Bevy|bevy_embedded_assets|
-|---|---|
-|main|main|
-|0.17|0.14|
-|0.16|0.13|
-|0.15|0.12|
-|0.14|0.11|
-|0.13|0.10|
-|0.12|0.9|
-|0.11|0.8|
-|0.10|0.7|
-|0.9|0.6|
-|0.8|0.4|
-|0.7|0.3|
-|0.6|0.2|
-|0.5|0.1|
+| Bevy | bevy_embedded_assets |
+| ---- | -------------------- |
+| main | main                 |
+| 0.18 | 0.15                 |
+| 0.17 | 0.14                 |
+| 0.16 | 0.13                 |
+| 0.15 | 0.12                 |
+| 0.14 | 0.11                 |
+| 0.13 | 0.10                 |
+| 0.12 | 0.9                  |
+| 0.11 | 0.8                  |
+| 0.10 | 0.7                  |
+| 0.9  | 0.6                  |
+| 0.8  | 0.4                  |
+| 0.7  | 0.3                  |
+| 0.6  | 0.2                  |
+| 0.5  | 0.1                  |
