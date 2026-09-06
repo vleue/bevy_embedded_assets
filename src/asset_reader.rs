@@ -7,8 +7,7 @@ use std::{
 };
 
 use bevy_asset::io::{
-    AssetReader, AssetReaderError, ErasedAssetReader, PathStream, Reader, ReaderNotSeekableError,
-    SeekableReader,
+    AssetReader, AssetReaderError, ErasedAssetReader, PathStream, Reader, ReaderNotSeekableError, SeekableReader,
 };
 use futures_io::{AsyncRead, AsyncSeek};
 use futures_lite::Stream;
@@ -43,8 +42,7 @@ pub struct EmbeddedAssetReader {
 
 impl std::fmt::Debug for EmbeddedAssetReader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("EmbeddedAssetReader")
-            .finish_non_exhaustive()
+        f.debug_struct("EmbeddedAssetReader").finish_non_exhaustive()
     }
 }
 
@@ -64,10 +62,7 @@ impl EmbeddedAssetReader {
     /// Create an empty [`EmbeddedAssetReader`].
     #[must_use]
     pub(crate) fn new() -> Self {
-        Self {
-            loaded: HashMap::default(),
-            fallback: None,
-        }
+        Self { loaded: HashMap::default(), fallback: None }
     }
 
     /// Create an [`EmbeddedAssetReader`] loaded with all the assets found by the build script.
@@ -77,10 +72,7 @@ impl EmbeddedAssetReader {
     /// calling `preloaded` with [`EmbeddedAssetReader::load_path_sync()`].
     #[must_use]
     pub fn preloaded() -> Self {
-        let mut new = Self {
-            loaded: HashMap::default(),
-            fallback: None,
-        };
+        let mut new = Self { loaded: HashMap::default(), fallback: None };
         include_all_assets(&mut new);
         new
     }
@@ -90,10 +82,7 @@ impl EmbeddedAssetReader {
     pub(crate) fn preloaded_with_default(
         mut default: impl FnMut() -> Box<dyn ErasedAssetReader> + Send + Sync + 'static,
     ) -> Self {
-        let mut new = Self {
-            loaded: HashMap::default(),
-            fallback: Some(default()),
-        };
+        let mut new = Self { loaded: HashMap::default(), fallback: Some(default()) };
         include_all_assets(&mut new);
         new
     }
@@ -109,10 +98,7 @@ impl EmbeddedAssetReader {
     ///
     /// This will returns an error if the path is not known.
     pub fn load_path_sync(&self, path: &Path) -> Result<DataReader, AssetReaderError> {
-        self.loaded
-            .get(path)
-            .map(|b| DataReader(b))
-            .ok_or_else(|| AssetReaderError::NotFound(path.to_path_buf()))
+        self.loaded.get(path).map(|b| DataReader(b)).ok_or_else(|| AssetReaderError::NotFound(path.to_path_buf()))
     }
 
     fn has_file_sync(&self, path: &Path) -> bool {
@@ -121,9 +107,7 @@ impl EmbeddedAssetReader {
 
     fn is_directory_sync(&self, path: &Path) -> bool {
         let as_folder = path.join("");
-        self.loaded
-            .keys()
-            .any(|loaded_path| loaded_path.starts_with(&as_folder) && loaded_path != &path)
+        self.loaded.keys().any(|loaded_path| loaded_path.starts_with(&as_folder) && loaded_path != &path)
     }
 
     fn read_directory_sync(&self, path: &Path) -> Result<DirReader, AssetReaderError> {
@@ -152,11 +136,7 @@ impl Reader for DataReader {
     fn read_to_end<'a>(
         &'a mut self,
         buf: &'a mut Vec<u8>,
-    ) -> bevy_asset::io::StackFuture<
-        'a,
-        std::io::Result<usize>,
-        { bevy_asset::io::STACK_FUTURE_SIZE },
-    > {
+    ) -> bevy_asset::io::StackFuture<'a, std::io::Result<usize>, { bevy_asset::io::STACK_FUTURE_SIZE }> {
         let future = futures_lite::AsyncReadExt::read_to_end(self, buf);
         bevy_asset::io::StackFuture::from(future)
     }
@@ -183,9 +163,7 @@ impl AsyncSeek for DataReader {
         _: &mut std::task::Context<'_>,
         _pos: futures_io::SeekFrom,
     ) -> Poll<futures_io::Result<u64>> {
-        Poll::Ready(Err(futures_io::Error::other(
-            EmbeddedDataReaderError::SeekNotSupported,
-        )))
+        Poll::Ready(Err(futures_io::Error::other(EmbeddedDataReaderError::SeekNotSupported)))
     }
 }
 
@@ -200,10 +178,7 @@ struct DirReader(Vec<PathBuf>);
 impl Stream for DirReader {
     type Item = PathBuf;
 
-    fn poll_next(
-        self: Pin<&mut Self>,
-        _cx: &mut std::task::Context<'_>,
-    ) -> Poll<Option<Self::Item>> {
+    fn poll_next(self: Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.get_mut();
         Poll::Ready(this.0.pop())
     }
@@ -211,10 +186,7 @@ impl Stream for DirReader {
 
 pub(crate) fn get_meta_path(path: &Path) -> PathBuf {
     let mut meta_path = path.to_path_buf();
-    let mut extension = path
-        .extension()
-        .expect("asset paths must have extensions")
-        .to_os_string();
+    let mut extension = path.extension().expect("asset paths must have extensions").to_os_string();
     extension.push(".meta");
     meta_path.set_extension(extension);
     meta_path
@@ -249,10 +221,7 @@ impl AssetReader for EmbeddedAssetReader {
         }
     }
 
-    async fn read_directory<'a>(
-        &'a self,
-        path: &'a Path,
-    ) -> Result<Box<PathStream>, AssetReaderError> {
+    async fn read_directory<'a>(&'a self, path: &'a Path) -> Result<Box<PathStream>, AssetReaderError> {
         self.read_directory_sync(path).map(|read_dir| {
             let boxed: Box<PathStream> = Box::new(read_dir);
             boxed
@@ -277,17 +246,8 @@ mod tests {
         embedded.add_asset(Path::new("asset.png"), &[1, 2, 3]);
         embedded.add_asset(Path::new("other_asset.png"), &[4, 5, 6]);
         assert!(embedded.load_path_sync(Path::new("asset.png")).is_ok());
-        assert_eq!(
-            embedded.load_path_sync(Path::new("asset.png")).unwrap().0,
-            [1, 2, 3]
-        );
-        assert_eq!(
-            embedded
-                .load_path_sync(Path::new("other_asset.png"))
-                .unwrap()
-                .0,
-            [4, 5, 6]
-        );
+        assert_eq!(embedded.load_path_sync(Path::new("asset.png")).unwrap().0, [1, 2, 3]);
+        assert_eq!(embedded.load_path_sync(Path::new("other_asset.png")).unwrap().0, [4, 5, 6]);
         assert!(embedded.load_path_sync(Path::new("asset")).is_err());
         assert!(embedded.load_path_sync(Path::new("other")).is_err());
     }
@@ -312,11 +272,7 @@ mod tests {
         embedded.add_asset(Path::new("asset.png"), &[]);
         embedded.add_asset(Path::new("directory/asset.png"), &[]);
         embedded.add_asset(Path::new("directory/asset2.png"), &[]);
-        assert!(
-            embedded
-                .read_directory_sync(Path::new("asset.png"))
-                .is_err()
-        );
+        assert!(embedded.read_directory_sync(Path::new("asset.png")).is_err());
         assert!(embedded.read_directory_sync(Path::new("directory")).is_ok());
         let mut list = embedded
             .read_directory_sync(Path::new("directory"))
@@ -357,10 +313,7 @@ mod tests {
         assert!(loaded.is_ok());
         let raw_asset = loaded.unwrap();
         assert!(String::from_utf8(raw_asset.0.to_vec()).is_ok());
-        assert_eq!(
-            String::from_utf8(raw_asset.0.to_vec()).unwrap(),
-            "with special chars"
-        );
+        assert_eq!(String::from_utf8(raw_asset.0.to_vec()).unwrap(), "with special chars");
     }
 
     #[cfg_attr(not(target_arch = "wasm32"), test)]
@@ -374,9 +327,6 @@ mod tests {
         assert!(loaded.is_ok());
         let raw_asset = loaded.unwrap();
         assert!(String::from_utf8(raw_asset.0.to_vec()).is_ok());
-        assert_eq!(
-            String::from_utf8(raw_asset.0.to_vec()).unwrap(),
-            "in subdirectory"
-        );
+        assert_eq!(String::from_utf8(raw_asset.0.to_vec()).unwrap(), "in subdirectory");
     }
 }

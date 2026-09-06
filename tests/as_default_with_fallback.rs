@@ -30,20 +30,11 @@ impl bevy::asset::AssetLoader for TestAssetLoader {
     type Asset = TestAsset;
     type Settings = ();
     type Error = TestError;
-    async fn load(
-        &self,
-        reader: &mut dyn Reader,
-        _: &(),
-        _: &mut LoadContext<'_>,
-    ) -> Result<Self::Asset, Self::Error> {
+    async fn load(&self, reader: &mut dyn Reader, _: &(), _: &mut LoadContext<'_>) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
-        bevy::asset::AsyncReadExt::read_to_end(reader, &mut bytes)
-            .await
-            .unwrap();
+        bevy::asset::AsyncReadExt::read_to_end(reader, &mut bytes).await.unwrap();
 
-        Ok(TestAsset {
-            value: String::from_utf8(bytes).unwrap(),
-        })
+        Ok(TestAsset { value: String::from_utf8(bytes).unwrap() })
     }
 
     fn extensions(&self) -> &[&str] {
@@ -55,14 +46,9 @@ impl bevy::asset::AssetLoader for TestAssetLoader {
 fn work_with_embedded_source_plugin_before() {
     let mut app = App::new();
     app.add_plugins(EmbeddedAssetPlugin {
-        mode: PluginMode::ReplaceAndFallback {
-            path: "runtime_assets".to_string(),
-        },
+        mode: PluginMode::ReplaceAndFallback { path: "runtime_assets".to_string() },
     })
-    .add_plugins(DefaultPlugins.set(AssetPlugin {
-        file_path: "runtime_assets".to_string(),
-        ..default()
-    }))
+    .add_plugins(DefaultPlugins.set(AssetPlugin { file_path: "runtime_assets".to_string(), ..default() }))
     .init_asset::<TestAsset>()
     .init_asset_loader::<TestAssetLoader>();
     app.finish();
@@ -72,6 +58,7 @@ fn work_with_embedded_source_plugin_before() {
     let handle_2: Handle<TestAsset> = asset_server.load("açèt.test");
     let handle_3: Handle<TestAsset> = asset_server.load("subdir/other_asset.test");
     let handle_4: Handle<TestAsset> = asset_server.load("asset.test");
+    let handle_5: Handle<TestAsset> = asset_server.load("embedded://subdir/ignored_dir/ignored_asset.test");
     app.update();
     let test_assets = app.world_mut().resource_mut::<Assets<TestAsset>>();
     let asset = test_assets.get(&handle_1).unwrap();
@@ -82,4 +69,6 @@ fn work_with_embedded_source_plugin_before() {
     assert_eq!(asset.value, "in subdirectory");
     let asset = test_assets.get(&handle_4).unwrap();
     assert_eq!(asset.value, "at runtime");
+    let asset = test_assets.get(&handle_5);
+    assert_eq!(asset.is_none(), true);
 }

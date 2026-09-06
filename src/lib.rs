@@ -156,9 +156,9 @@ impl Plugin for EmbeddedAssetPlugin {
                 app.register_asset_source(
                     AssetSourceId::Default,
                     AssetSourceBuilder::new(move || {
-                        Box::new(EmbeddedAssetReader::preloaded_with_default(
-                            AssetSource::get_default_reader(path.clone()),
-                        ))
+                        Box::new(EmbeddedAssetReader::preloaded_with_default(AssetSource::get_default_reader(
+                            path.clone(),
+                        )))
                     }),
                 );
             }
@@ -166,12 +166,7 @@ impl Plugin for EmbeddedAssetPlugin {
     }
 
     fn finish(&self, app: &mut App) {
-        if matches!(self.mode, PluginMode::AutoLoad)
-            && app
-                .world_mut()
-                .remove_resource::<AllTheEmbedded>()
-                .is_none()
-        {
+        if matches!(self.mode, PluginMode::AutoLoad) && app.world_mut().remove_resource::<AllTheEmbedded>().is_none() {
             let mut registry = app.world_mut().resource_mut::<EmbeddedAssetRegistry>();
             include_all_assets(registry.as_mut());
         }

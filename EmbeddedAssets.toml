@@ -1,0 +1,11 @@
+# Specify extensions that should be ignored
+ignore_extensions = [
+    "blend",
+    "blend1",
+    "spp",
+]
+ignore_dirs = [
+    "references",
+    "exports",
+    "backups"
+]
