@@ -249,18 +249,21 @@ impl AssetReader for EmbeddedAssetReader {
         }
     }
 
-    async fn read_directory<'a>(
+    fn read_directory<'a>(
         &'a self,
         path: &'a Path,
-    ) -> Result<Box<PathStream>, AssetReaderError> {
-        self.read_directory_sync(path).map(|read_dir| {
+    ) -> impl Future<Output = Result<Box<PathStream>, AssetReaderError>> {
+        std::future::ready(self.read_directory_sync(path).map(|read_dir| {
             let boxed: Box<PathStream> = Box::new(read_dir);
             boxed
-        })
+        }))
     }
 
-    async fn is_directory<'a>(&'a self, path: &'a Path) -> Result<bool, AssetReaderError> {
-        Ok(self.is_directory_sync(path))
+    fn is_directory<'a>(
+        &'a self,
+        path: &'a Path,
+    ) -> impl Future<Output = Result<bool, AssetReaderError>> {
+        std::future::ready(Ok(self.is_directory_sync(path)))
     }
 }
 
